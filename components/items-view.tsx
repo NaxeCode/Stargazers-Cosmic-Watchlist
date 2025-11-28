@@ -4,10 +4,16 @@ import { useState } from "react";
 import { ItemCard } from "@/components/item-card";
 import { PaginationControls } from "@/components/pagination-controls";
 import { CommandPalette } from "@/components/command-palette";
-import { AiCategorizeButton } from "@/components/ai-categorize-button";
-import type { items } from "@/db/schema";
-
-type Item = typeof items.$inferSelect;
+import { AiCategorizeButtons } from "@/components/ai-categorize-button";
+type Item = any;
+type Minimal = {
+  id: number;
+  title: string;
+  status: string;
+  type: string;
+  tags?: string | null;
+  [key: string]: any;
+};
 
 export function ItemsView({
   items,
@@ -20,7 +26,7 @@ export function ItemsView({
   aiAvailable,
 }: {
   items: Item[];
-  allItems: Pick<Item, "id" | "title" | "status" | "type">[];
+  allItems: Minimal[];
   page: number;
   totalPages: number;
   total: number;
@@ -39,7 +45,7 @@ export function ItemsView({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <PaginationControls page={page} totalPages={totalPages} params={params} pageSize={pageSize} />
         <div className="flex flex-wrap items-center gap-2">
-          <AiCategorizeButton disabled={!aiAvailable} />
+          <AiCategorizeButtons disabled={!aiAvailable} selectedIds={selectedIds} />
           <CommandPalette
             withTrigger
             items={allItems}

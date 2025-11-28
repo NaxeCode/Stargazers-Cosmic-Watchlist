@@ -8,9 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { EditItemDialog } from "@/components/edit-item-dialog";
 import { DeleteButton } from "@/components/delete-button";
 import { tagsToArray } from "@/lib/utils";
-import type { items } from "@/db/schema";
-
-type Item = typeof items.$inferSelect;
+type Item = any;
 
 export function ItemCard({
   item,

@@ -23,6 +23,7 @@ type MinimalItem = {
   title: string;
   status: string;
   type: string;
+  tags?: string | null;
 };
 
 export function CommandPalette({
@@ -144,7 +145,7 @@ export function CommandPalette({
             {items.map((item) => (
               <CommandItem
                 key={item.id}
-                value={item.title}
+                value={`${item.title} ${item.tags ?? ""}`}
                 onSelect={() => toggleSelect(item.id)}
                 className="flex items-center gap-3 rounded-lg border border-border/50 bg-secondary/30 px-3 py-3 text-sm shadow-sm"
               >
@@ -161,6 +162,11 @@ export function CommandPalette({
                 <Badge variant="outline" className="text-[10px] capitalize">
                   {item.status}
                 </Badge>
+                {item.tags && (
+                  <Badge variant="outline" className="text-[10px]">
+                    {item.tags.toString()}
+                  </Badge>
+                )}
               </CommandItem>
             ))}
           </CommandGroup>
@@ -209,10 +215,14 @@ function createParticles(count = 5): Particle[] {
 }
 
 function CommandTriggerButton({ onClick }: { onClick: () => void }) {
-  const [particles, setParticles] = useState<Particle[]>(() => createParticles());
+  const [mounted, setMounted] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setParticles(createParticles());
+
     let raf: number;
     let last = performance.now();
     const tick = (now: number) => {
@@ -256,33 +266,35 @@ function CommandTriggerButton({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHovered(false)}
     >
       <div className="absolute inset-0 -z-10" aria-hidden />
-      <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-200"
-        style={{ opacity: hovered ? 1 : 0 }}
-      >
-        {particles.map((p) => {
-          const x = Math.cos(p.angle) * p.radius;
-          const y = Math.sin(p.angle) * p.radius;
-          const tiltX = x * Math.cos(p.tilt) - y * Math.sin(p.tilt);
-          const tiltY = x * Math.sin(p.tilt) + y * Math.cos(p.tilt);
-          const size = Math.max(3, 4 * p.depth);
-          const opacity = 0.6 + (p.depth - p.depthMin) / (p.depthMax - p.depthMin + 0.0001) * 0.25;
-          return (
-            <span
-              key={p.id}
-              className="absolute rounded-full bg-white shadow-[0_0_8px_rgba(124,58,237,0.5)]"
-              style={{
-                top: "50%",
-                left: "50%",
-                width: `${size}px`,
-                height: `${size}px`,
-                opacity,
-                transform: `translate(-50%, -50%) translate(${tiltX}px, ${tiltY}px)`,
-              }}
-            />
-          );
-        })}
-      </div>
+      {mounted && (
+        <div
+          className="pointer-events-none absolute inset-0 transition-opacity duration-200"
+          style={{ opacity: hovered ? 1 : 0 }}
+        >
+          {particles.map((p) => {
+            const x = Math.cos(p.angle) * p.radius;
+            const y = Math.sin(p.angle) * p.radius;
+            const tiltX = x * Math.cos(p.tilt) - y * Math.sin(p.tilt);
+            const tiltY = x * Math.sin(p.tilt) + y * Math.cos(p.tilt);
+            const size = Math.max(3, 4 * p.depth);
+            const opacity = 0.6 + (p.depth - p.depthMin) / (p.depthMax - p.depthMin + 0.0001) * 0.25;
+            return (
+              <span
+                key={p.id}
+                className="absolute rounded-full bg-white shadow-[0_0_8px_rgba(124,58,237,0.5)]"
+                style={{
+                  top: "50%",
+                  left: "50%",
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  opacity,
+                  transform: `translate(-50%, -50%) translate(${tiltX}px, ${tiltY}px)`,
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
       <Search className="h-4 w-4" />
       Command
     </Button>

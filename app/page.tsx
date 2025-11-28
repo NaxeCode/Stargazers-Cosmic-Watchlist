@@ -1,9 +1,10 @@
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { items, users } from "@/db/schema";
 import { ItemForm } from "@/components/item-form";
 import { FiltersBar } from "@/components/filters-bar";
+import { ItemSearch } from "@/components/item-search";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ITEM_TYPES, STATUSES } from "@/lib/constants";
@@ -30,6 +31,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const typeParam = Array.isArray(params.type) ? params.type[0] : params.type;
   const statusParam = Array.isArray(params.status) ? params.status[0] : params.status;
   const qParam = Array.isArray(params.q) ? params.q[0] : params.q;
+  const tagParam = Array.isArray(params.tag) ? params.tag[0] : params.tag;
+  const tagValue = (tagParam ?? "").trim();
+  const queryValue = (qParam ?? "").trim();
   const pageParam = Array.isArray(params.page) ? params.page[0] : params.page;
   const pageSizeParam = Array.isArray(params.pageSize) ? params.pageSize[0] : params.pageSize;
   const page = Math.max(1, Number(pageParam) || 1);
@@ -78,8 +82,16 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   if (statusFilter) {
     conditions.push(eq(items.status, statusFilter));
   }
-  if (qParam) {
-    conditions.push(ilike(items.title, `%${qParam}%`));
+  if (queryValue) {
+    conditions.push(
+      or(
+        ilike(items.title, `%${queryValue}%`),
+        ilike(sql`coalesce("items"."tags", '')`, `%${queryValue}%`),
+      ),
+    );
+  }
+  if (tagValue) {
+    conditions.push(ilike(sql`coalesce("items"."tags", '')`, `%${tagValue}%`));
   }
 
   const whereClause = conditions.length
@@ -101,17 +113,39 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
     offset: (page - 1) * pageSize,
   });
 
-  const allItemsForCommand = await db.query.items.findMany({
+  const allItemsForCommand = (await db.query.items.findMany({
     where: whereClause,
     orderBy: [desc(items.createdAt)],
-    columns: { id: true, title: true, status: true, type: true },
+  })) as any[];
+
+  const allTagsSource = await db.query.items.findMany({
+    where: eq(items.userId, userId),
+    columns: { tags: true },
   });
+  const uniqueTags = Array.from(
+    new Set(
+      allTagsSource
+        .flatMap((row) => (row.tags ?? "").split(","))
+        .map((t) => t.trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+  const statusCounts = await db
+    .select({
+      status: items.status,
+      count: sql<number>`count(*)`,
+    })
+    .from(items)
+    .where(whereClause)
+    .groupBy(items.status);
+
+  const statusMap = new Map(statusCounts.map((row) => [row.status, Number(row.count)]));
   const statusStats = STATUSES.map((status) => ({
     status,
-    count: results.filter((item) => item.status === status).length,
+    count: statusMap.get(status) ?? 0,
   }));
 
   const userRow = await db.query.users.findFirst({
@@ -219,6 +253,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             </p>
           </div>
         </div>
+        <ItemSearch currentTitle={queryValue} currentTag={tagValue} params={params} uniqueTags={uniqueTags} />
         {userId ? (
           results.length === 0 ? (
             <div className="rounded-2xl border border-border/70 bg-secondary/40 p-6 text-center text-muted-foreground">
