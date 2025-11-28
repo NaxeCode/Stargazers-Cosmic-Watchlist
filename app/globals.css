@@ -95,6 +95,100 @@ body::after {
   border-radius: 9999px;
 }
 
+.cosmic-button {
+  position: relative;
+  overflow: visible;
+  transition: transform 150ms ease, box-shadow 200ms ease;
+}
+
+.cosmic-button::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.06), transparent 55%),
+    radial-gradient(circle at 70% 30%, rgba(236, 72, 153, 0.06), transparent 45%);
+  filter: blur(6px);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.cosmic-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.18), 0 0 12px rgba(236, 72, 153, 0.12);
+}
+
+.cosmic-button:hover::before {
+  opacity: 1;
+}
+
+.cosmic-button .orbit {
+  position: absolute;
+  inset: -30px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.cosmic-button:hover .orbit {
+  opacity: 1;
+}
+
+.orbit span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.6));
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.55);
+  transform-origin: -26px;
+  animation: orbit-gravity 2.4s cubic-bezier(0.55, 0.1, 0.45, 0.9) infinite;
+}
+
+.orbit span:nth-child(2) {
+  width: 5px;
+  height: 5px;
+  transform-origin: -32px;
+  animation-duration: 2.1s;
+  animation-delay: -0.35s;
+}
+
+.orbit span:nth-child(3) {
+  width: 4px;
+  height: 4px;
+  transform-origin: -38px;
+  animation-duration: 2.6s;
+  animation-delay: -0.7s;
+}
+
+@keyframes orbit-gravity {
+  0% {
+    transform: rotate(0deg) translateX(30px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  20% {
+    transform: rotate(90deg) translateX(18px) scale(0.8) rotate(-60deg);
+    opacity: 0.9;
+  }
+  40% {
+    transform: rotate(180deg) translateX(10px) scale(0.65) rotate(-140deg);
+    opacity: 0.8;
+  }
+  55% {
+    transform: rotate(240deg) translateX(22px) scale(0.9) rotate(-200deg);
+    opacity: 0.95;
+  }
+  75% {
+    transform: rotate(300deg) translateX(16px) scale(0.8) rotate(-260deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: rotate(360deg) translateX(30px) scale(1) rotate(-320deg);
+    opacity: 1;
+  }
+}
+
 @keyframes float {
   0%,
   100% {
