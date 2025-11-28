@@ -28,14 +28,20 @@ type MinimalItem = {
 export function CommandPalette({
   withTrigger = false,
   items = [],
+  selected: controlledSelected,
+  onSelectedChange,
 }: {
   withTrigger?: boolean;
   items?: MinimalItem[];
+  selected?: number[];
+  onSelectedChange?: (ids: number[]) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<number[]>([]);
+  const [internalSelected, setInternalSelected] = useState<number[]>([]);
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [pending, startTransition] = useTransition();
+  const selected = controlledSelected ?? internalSelected;
+  const setSelected = onSelectedChange ?? setInternalSelected;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -48,12 +54,20 @@ export function CommandPalette({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const toggleSelect = (id: number) => {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const applySelection = (next: number[]) => {
+    if (onSelectedChange) onSelectedChange(next);
+    else setInternalSelected(next);
   };
 
-  const selectAll = () => setSelected(items.map((i) => i.id));
-  const clearAll = () => setSelected([]);
+  const toggleSelect = (id: number) => {
+    const next = selected.includes(id)
+      ? selected.filter((x) => x !== id)
+      : [...selected, id];
+    applySelection(next);
+  };
+
+  const selectAll = () => applySelection(items.map((i) => i.id));
+  const clearAll = () => applySelection([]);
 
   const onBulkUpdate = () => {
     if (!selected.length) {
@@ -71,7 +85,7 @@ export function CommandPalette({
       const res = await bulkUpdateStatusAction(undefined, formData);
       if (res?.success) {
         toast.success(res.success);
-        setSelected([]);
+        applySelection([]);
         setOpen(false);
       } else if (res?.error) {
         toast.error(res.error);
@@ -82,15 +96,7 @@ export function CommandPalette({
   return (
     <>
       {withTrigger && (
-        <Button
-          type="button"
-          variant="secondary"
-          className="gap-2"
-          onClick={() => setOpen(true)}
-        >
-          <Search className="h-4 w-4" />
-          Command
-        </Button>
+        <CommandTriggerButton onClick={() => setOpen(true)} />
       )}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <div className="flex flex-col gap-3 px-5 pt-5">
@@ -144,7 +150,7 @@ export function CommandPalette({
               >
                 <input
                   type="checkbox"
-                  className="h-4 w-4 accent-primary"
+                  className="h-4 w-4 cursor-pointer accent-primary"
                   checked={selected.includes(item.id)}
                   readOnly
                 />
@@ -162,5 +168,123 @@ export function CommandPalette({
         </CommandList>
       </CommandDialog>
     </>
+  );
+}
+
+type Particle = {
+  id: number;
+  angle: number;
+  radius: number;
+  speed: number;
+  drift: number;
+  rMin: number;
+  rMax: number;
+  depth: number;
+  depthSpeed: number;
+  depthMin: number;
+  depthMax: number;
+  tilt: number;
+  tiltSpeed: number;
+};
+
+function createParticles(count = 5): Particle[] {
+  return Array.from({ length: count }, (_, i) => {
+    const baseRadius = 30 + Math.random() * 18;
+    return {
+      id: i,
+      angle: Math.random() * Math.PI * 2,
+      radius: baseRadius,
+      speed: 0.6 + Math.random() * 0.6,
+      drift: (Math.random() > 0.5 ? 1 : -1) * (8 + Math.random() * 6),
+      rMin: baseRadius - 6,
+      rMax: baseRadius + 14,
+      depth: 0.7 + Math.random() * 0.4,
+      depthSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.15 + Math.random() * 0.1),
+      depthMin: 0.5,
+      depthMax: 1.25,
+      tilt: Math.random() * Math.PI * 2,
+      tiltSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.6),
+    };
+  });
+}
+
+function CommandTriggerButton({ onClick }: { onClick: () => void }) {
+  const [particles, setParticles] = useState<Particle[]>(() => createParticles());
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    let raf: number;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = Math.min(0.04, (now - last) / 1000);
+      last = now;
+      setParticles((prev) =>
+        prev.map((p) => {
+          let angle = p.angle + p.speed * dt * 2 * Math.PI;
+          let radius = p.radius + p.drift * dt;
+          let drift = p.drift;
+          if (radius > p.rMax || radius < p.rMin) {
+            drift = -drift;
+            radius = Math.min(Math.max(radius, p.rMin), p.rMax);
+          }
+
+          let depth = p.depth + p.depthSpeed * dt;
+          let depthSpeed = p.depthSpeed;
+          if (depth > p.depthMax || depth < p.depthMin) {
+            depthSpeed = -depthSpeed;
+            depth = Math.min(Math.max(depth, p.depthMin), p.depthMax);
+          }
+
+          const tilt = p.tilt + p.tiltSpeed * dt;
+
+          return { ...p, angle, radius, drift, depth, depthSpeed, tilt };
+        }),
+      );
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      className="cosmic-button relative gap-2 overflow-visible"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div className="absolute inset-0 -z-10" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-200"
+        style={{ opacity: hovered ? 1 : 0 }}
+      >
+        {particles.map((p) => {
+          const x = Math.cos(p.angle) * p.radius;
+          const y = Math.sin(p.angle) * p.radius;
+          const tiltX = x * Math.cos(p.tilt) - y * Math.sin(p.tilt);
+          const tiltY = x * Math.sin(p.tilt) + y * Math.cos(p.tilt);
+          const size = Math.max(3, 4 * p.depth);
+          const opacity = 0.6 + (p.depth - p.depthMin) / (p.depthMax - p.depthMin + 0.0001) * 0.25;
+          return (
+            <span
+              key={p.id}
+              className="absolute rounded-full bg-white shadow-[0_0_8px_rgba(124,58,237,0.5)]"
+              style={{
+                top: "50%",
+                left: "50%",
+                width: `${size}px`,
+                height: `${size}px`,
+                opacity,
+                transform: `translate(-50%, -50%) translate(${tiltX}px, ${tiltY}px)`,
+              }}
+            />
+          );
+        })}
+      </div>
+      <Search className="h-4 w-4" />
+      Command
+    </Button>
   );
 }

@@ -12,7 +12,17 @@ import type { items } from "@/db/schema";
 
 type Item = typeof items.$inferSelect;
 
-export function ItemCard({ item, index }: { item: Item; index: number }) {
+export function ItemCard({
+  item,
+  index,
+  selected,
+  onToggle,
+}: {
+  item: Item;
+  index: number;
+  selected: boolean;
+  onToggle: (id: number) => void;
+}) {
   const tags = tagsToArray(item.tags);
   const [showNotes, setShowNotes] = useState(false);
 
@@ -24,11 +34,15 @@ export function ItemCard({ item, index }: { item: Item; index: number }) {
     >
       <Card className="relative flex flex-col overflow-hidden rounded-xl border border-border/70 bg-secondary/40 px-3 py-2 shadow-sm">
         <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-          <input
-            type="checkbox"
-            className="h-4 w-4 cursor-pointer accent-primary"
-            aria-label="Select item"
-          />
+          <label className="flex items-center gap-1.5 rounded-full bg-black/30 px-2 py-1 shadow-inner">
+            <input
+              type="checkbox"
+              className="h-4 w-4 cursor-pointer rounded border border-border/70 bg-transparent accent-primary"
+              checked={selected}
+              onChange={() => onToggle(item.id)}
+              aria-label="Select item"
+            />
+          </label>
           <Badge variant="glow" className="capitalize text-[10px] sm:text-xs">
             {item.type}
           </Badge>

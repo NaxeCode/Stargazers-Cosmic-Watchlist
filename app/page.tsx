@@ -4,15 +4,13 @@ import { db } from "@/db";
 import { items } from "@/db/schema";
 import { ItemForm } from "@/components/item-form";
 import { FiltersBar } from "@/components/filters-bar";
-import { ItemCard } from "@/components/item-card";
-import { CommandPalette } from "@/components/command-palette";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ITEM_TYPES, STATUSES } from "@/lib/constants";
 import { AuthButtons } from "@/components/auth-buttons";
 import Image from "next/image";
 import { ImportLetterboxd } from "@/components/import-letterboxd";
-import { PaginationControls } from "@/components/pagination-controls";
+import { ItemsView } from "@/components/items-view";
 
 type SearchParam =
   | Promise<Record<string, string | string[] | undefined>>
@@ -31,8 +29,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const statusParam = Array.isArray(params.status) ? params.status[0] : params.status;
   const qParam = Array.isArray(params.q) ? params.q[0] : params.q;
   const pageParam = Array.isArray(params.page) ? params.page[0] : params.page;
+  const pageSizeParam = Array.isArray(params.pageSize) ? params.pageSize[0] : params.pageSize;
   const page = Math.max(1, Number(pageParam) || 1);
-  const pageSize = 10;
+  const pageSize = Math.min(100, Math.max(10, Number(pageSizeParam) || 10));
 
   if (!userId) {
     return (
@@ -204,15 +203,6 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
               Showing {results.length} item{results.length === 1 ? "" : "s"} sorted by latest.
             </p>
           </div>
-          <CommandPalette
-            withTrigger
-            items={allItemsForCommand.map((i) => ({
-              id: i.id,
-              title: i.title,
-              status: i.status,
-              type: i.type,
-            }))}
-          />
         </div>
         {userId ? (
           results.length === 0 ? (
@@ -220,17 +210,15 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
               Nothing here yet. Add your first item to begin tracking.
             </div>
           ) : (
-            <div className="space-y-6">
-              <PaginationControls page={page} totalPages={totalPages} params={params} />
-              <div className="grid gap-4">
-                {results.map((item, idx) => (
-                  <ItemCard key={item.id} item={item} index={idx} />
-                ))}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Page {page} of {totalPages} · {total} item{total === 1 ? "" : "s"}
-              </div>
-            </div>
+            <ItemsView
+              items={results}
+              allItems={allItemsForCommand}
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              params={params}
+              pageSize={pageSize}
+            />
           )
         ) : (
           <div className="rounded-2xl border border-border/70 bg-secondary/40 p-6 text-center text-muted-foreground">
