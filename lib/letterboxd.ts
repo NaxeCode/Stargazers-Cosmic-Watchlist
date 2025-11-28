@@ -17,6 +17,7 @@ export function parseLetterboxdCsv(csv: string): LetterboxdImportItem[] {
     relax_quotes: true,
     relax_column_count: true,
     trim: true,
+    delimiter: [",", ";", "\t"],
   }) as LetterboxdRow[];
 
   const parsed: LetterboxdImportItem[] = [];
