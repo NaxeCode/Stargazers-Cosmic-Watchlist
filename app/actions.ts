@@ -319,18 +319,28 @@ type AiCategorizeResult = {
   error?: string;
 };
 
-export async function aiCategorizeAction(limit = 40): Promise<AiCategorizeResult> {
+export async function aiCategorizeAction(
+  limit = 40,
+  ids?: number[],
+): Promise<AiCategorizeResult> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: "Please sign in first." };
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return { error: "OPENAI_API_KEY is not set." };
 
-  const itemsToProcess = await db.query.items.findMany({
-    where: eq(items.userId, userId),
-    orderBy: [desc(items.createdAt)],
-    limit,
-  });
+  const whereBase = eq(items.userId, userId);
+  const itemsToProcess = ids?.length
+    ? await db.query.items.findMany({
+        where: and(whereBase, inArray(items.id, ids)),
+        orderBy: [desc(items.createdAt)],
+        limit,
+      })
+    : await db.query.items.findMany({
+        where: whereBase,
+        orderBy: [desc(items.createdAt)],
+        limit,
+      });
 
   if (!itemsToProcess.length) return { error: "No items to categorize." };
 
@@ -342,17 +352,6 @@ export async function aiCategorizeAction(limit = 40): Promise<AiCategorizeResult
     tags: item.tags ?? "",
   }));
 
-  const prompt = `
-You are a concise genre classifier. Given a list of entries, return a JSON array of objects with "id" and "genres" (1-3 short genre labels). Do not include explanations.
-Allowed genres are free-form but keep to broad film/TV/anime/game categories (e.g., "horror", "sci-fi", "romance", "fantasy", "thriller", "drama", "comedy", "action", "adventure", "mystery", "documentary", "family", "sports").
-
-Input:
-${JSON.stringify(payload, null, 2)}
-
-Output strictly as JSON (no code fences), e.g.:
-[{"id":123,"genres":["horror","thriller"]}]
-`;
-
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -363,8 +362,26 @@ Output strictly as JSON (no code fences), e.g.:
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "You are a terse JSON-only genre tagging assistant." },
-          { role: "user", content: prompt },
+          {
+            role: "system",
+            content:
+              "You are a terse JSON-only genre tagging assistant. Respond with machine-readable JSON only.",
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `
+Given entries, output only JSON with shape: {"results":[{"id":<number>,"genres":[<1-3 short genre strings>]}]}.
+Allowed genres: broad film/TV/anime/game categories (e.g., horror, sci-fi, romance, fantasy, thriller, drama, comedy, action, adventure, mystery, documentary, family, sports). No explanations, no code fences.
+
+Input:
+${JSON.stringify(payload, null, 2)}
+`,
+              },
+            ],
+          },
         ],
         temperature: 0.2,
         max_tokens: 400,
@@ -380,11 +397,12 @@ Output strictly as JSON (no code fences), e.g.:
     const content: string | undefined = data?.choices?.[0]?.message?.content;
     if (!content) return { error: "No response from model." };
 
-    let parsed: { id: number; genres: string[] }[];
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      return { error: "Failed to parse AI response." };
+    const parsed = safeParseArray(content);
+    if (!parsed) {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[ai-categorize] raw content:", content);
+      }
+      return { error: `Failed to parse AI response: ${content.slice(0, 400)}` };
     }
 
     const updates = parsed
@@ -406,7 +424,7 @@ Output strictly as JSON (no code fences), e.g.:
       const merged = Array.from(
         new Set([...tagsToArray(existing.tags), ...genres]),
       ).join(", ");
-      await db.update(items).set({ tags: merged }).where(eq(items.id, id));
+      await db.update(items).set({ tags: merged } as any).where(eq(items.id, id));
     }
 
     revalidatePath("/");
@@ -414,4 +432,70 @@ Output strictly as JSON (no code fences), e.g.:
   } catch (err) {
     return { error: (err as Error).message || "Failed to run AI categorize." };
   }
+}
+
+function safeParseArray(content: string): { id: number; genres: string[] }[] | null {
+  const tryParse = (text: string) => {
+    try {
+      const value = JSON.parse(text);
+      if (Array.isArray(value)) return value;
+      if (value && typeof value === "object") {
+        // support { results: [...] } or { data: [...] }
+        if (Array.isArray((value as any).results)) return (value as any).results;
+        if (Array.isArray((value as any).data)) return (value as any).data;
+        // support map of id -> genres
+        const entries = Object.entries(value as Record<string, unknown>);
+        if (entries.length && entries.every(([, v]) => Array.isArray(v))) {
+          return entries.map(([k, v]) => ({
+            id: Number(k),
+            genres: (v as unknown[]).map((g) => String(g)),
+          }));
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  // direct parse
+  const direct = tryParse(content.trim());
+  if (direct) return direct;
+
+  // strip code fences
+  const fenceMatch = content.match(/```(?:json)?([\s\S]*?)```/i);
+  if (fenceMatch) {
+    const fenced = tryParse(fenceMatch[1].trim());
+    if (fenced) return fenced;
+  }
+
+  // find first [ ... ] block
+  const start = content.indexOf("[");
+  const end = content.lastIndexOf("]");
+  if (start !== -1 && end !== -1 && end > start) {
+    const slice = content.slice(start, end + 1);
+    const sliced = tryParse(slice);
+    if (sliced) return sliced;
+  }
+
+  // try replacing single quotes (sometimes models return them)
+  const singleToDouble = content.replace(/'/g, '"');
+  const converted = tryParse(singleToDouble);
+  if (converted) return converted;
+
+  // regex fallback to extract id/genres pairs from messy text
+  const matches = [...content.matchAll(/"id"\s*:\s*(\d+)[^[]*\[\s*([^\]]*?)\s*\]/g)];
+  if (matches.length) {
+    const result = matches.map((m) => {
+      const id = Number(m[1]);
+      const genres = m[2]
+        .split(",")
+        .map((g) => g.replace(/["']/g, "").trim())
+        .filter(Boolean);
+      return { id, genres };
+    });
+    if (result.length) return result;
+  }
+
+  return null;
 }

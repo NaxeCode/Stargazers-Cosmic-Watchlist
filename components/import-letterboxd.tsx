@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { importLetterboxdAction } from "@/app/actions";
@@ -17,9 +18,13 @@ export function ImportLetterboxd() {
     importLetterboxdAction,
     {},
   );
+  const router = useRouter();
 
   useEffect(() => {
-    if (state?.success) toast.success(state.success);
+    if (state?.success) {
+      toast.success(state.success);
+      router.refresh();
+    }
     if (state?.error) toast.error(state.error);
   }, [state]);
 
