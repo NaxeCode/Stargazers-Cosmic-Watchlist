@@ -47,7 +47,7 @@ export function parseLetterboxdCsv(csv: string): LetterboxdImportItem[] {
         watchedDate,
       };
     })
-    .filter((item): item is LetterboxdImportItem => !!item);
+    .filter((item): item is LetterboxdImportItem => Boolean(item));
 
   return parsed;
 }
