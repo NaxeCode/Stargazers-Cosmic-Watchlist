@@ -16,6 +16,7 @@ import { SharePanel } from "@/components/share-panel";
 import { SmartStats } from "@/components/smart-stats";
 import { buildRecommendationsFromItems } from "@/lib/recommendations";
 import { Recommendations } from "@/components/recommendations";
+import { FeedbackPanel } from "@/components/feedback-panel";
 
 type SearchParam =
   | Promise<Record<string, string | string[] | undefined>>
@@ -274,6 +275,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
             initialHandle={userRow?.publicHandle ?? null}
             initialEnabled={userRow?.publicEnabled ?? false}
           />
+          <FeedbackPanel />
         </>
       )}
       <section className="space-y-4">
