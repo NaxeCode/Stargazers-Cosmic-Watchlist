@@ -85,8 +85,7 @@ export const events = pgTable("events", {
   name: varchar("name", { length: 128 }).notNull(),
   payload: jsonb("payload").$type<Record<string, unknown>>().default({}).notNull(),
   userId: text("user_id")
-    .references(() => users.id, { onDelete: "set null" })
-    .default(null),
+    .references(() => users.id, { onDelete: "set null" }),
   userAgent: text("user_agent"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
