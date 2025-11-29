@@ -16,6 +16,7 @@ import { STATUSES } from "@/lib/constants";
 import { nanoid } from "nanoid";
 import { tagsToArray } from "@/lib/utils";
 import { fetchMetadata, metadataToUpdate } from "@/lib/metadata";
+import { assertItemWriteCapacity } from "@/lib/limits";
 
 type ActionState = {
   success?: string;
@@ -89,6 +90,10 @@ export async function createItemAction(
   }
 
   const payload = parsed.data;
+  const capacity = await assertItemWriteCapacity(userId, 1);
+  if (!capacity.ok) {
+    return { error: capacity.error };
+  }
 
   let metadataPatch: Record<string, unknown> = {};
   const needsMetadata = (payload.type === "movie" || payload.type === "tv") &&
@@ -279,6 +284,9 @@ export async function importLetterboxdAction(
       userId,
     };
   });
+
+  const capacity = await assertItemWriteCapacity(userId, rows.length);
+  if (!capacity.ok) return { error: capacity.error };
 
   try {
     const inserted = await db

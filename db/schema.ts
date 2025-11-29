@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -32,6 +33,7 @@ export const users = pgTable("users", {
   image: text("image"),
   publicHandle: text("public_handle").unique(),
   publicEnabled: boolean("public_enabled").notNull().default(false),
+  admin: boolean("admin").notNull().default(false),
 });
 
 export const accounts = pgTable(
@@ -77,6 +79,17 @@ export const verificationTokens = pgTable(
     compositePk: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 );
+
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  payload: jsonb("payload").$type<Record<string, unknown>>().default({}).notNull(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "set null" })
+    .default(null),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const items = pgTable("items", {
   id: serial("id").primaryKey(),
