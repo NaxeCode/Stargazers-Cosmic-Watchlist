@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ITEM_TYPES, STATUSES } from "@/lib/constants";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bulkUpdateStatusAction } from "@/app/actions";
+import { DialogTitle } from "@/components/ui/dialog";
 
 type MinimalItem = {
   id: number;
@@ -39,7 +40,6 @@ export function CommandPalette({
   onSelectedChange?: (ids: number[]) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [internalSelected, setInternalSelected] = useState<number[]>([]);
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
@@ -56,14 +56,6 @@ export function CommandPalette({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const handler = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
-    handler(mq);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
   }, []);
 
   const applySelection = (next: number[]) => {
@@ -112,8 +104,8 @@ export function CommandPalette({
 
   const commandContent = (
     <>
+      <DialogTitle className="sr-only">Command Palette</DialogTitle>
       <div className="flex flex-col gap-3 px-5 pt-5">
-        <p className="sr-only">Command Palette</p>
         <div className="text-sm text-muted-foreground">
           Search your entire library, select items, and bulk update status.
         </div>
@@ -207,27 +199,9 @@ export function CommandPalette({
   return (
     <>
       {withTrigger && <CommandTriggerButton onClick={() => setOpen(true)} />}
-      {isMobile ? (
-        open && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
-            <div className="absolute inset-x-0 bottom-0 mx-auto max-w-2xl rounded-t-2xl border border-border/60 bg-background pb-3 shadow-xl">
-              <div className="flex items-center justify-between px-4 pt-3">
-                <p className="text-sm font-semibold">Command palette</p>
-                <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
-                  Close
-                </Button>
-              </div>
-              <Command className="mt-2 border-t border-border/50">
-                {commandContent}
-              </Command>
-            </div>
-          </div>
-        )
-      ) : (
-        <CommandDialog open={open} onOpenChange={setOpen}>
-          {commandContent}
-        </CommandDialog>
-      )}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        {commandContent}
+      </CommandDialog>
     </>
   );
 }
