@@ -6,6 +6,7 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./db/**/*.{ts,tsx}",
+    "./node_modules/@stargazers-stella/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
