@@ -1,99 +1,104 @@
-# Watchlist
+# Stargazers Cosmic Watchlist
 
-A premium, server-first CRUD watchlist for anime, movies, TV, YouTube, and games. Built with Next.js App Router, Tailwind + shadcn/ui, Drizzle + Postgres, Zod validation, and server actions.
+A premium, server-first watchlist for anime, movies, TV, YouTube, and games: fast CRUD, shareable filters, and “smart stats” that make your backlog feel intentional instead of endless.
+
+Design note: this app uses `@stargazers-stella/cosmic-ui` for shared design DNA (token-first theming, Radix-based primitives, and the cosmic/glass visual language).
+
+## Screenshots
+Add your images to `docs/screenshots/` and replace these placeholders.
+
+![Dashboard / list view](docs/screenshots/dashboard.png)
+![Create + edit dialog](docs/screenshots/edit-dialog.png)
+![Smart stats + recommendations](docs/screenshots/stats-recs.png)
+![Share profile](docs/screenshots/share.png)
+
+## Key Features
+- Server-first CRUD with type-safe validation (Zod) and mutations (Next.js Server Actions).
+- Filters/search via URL params (shareable, bookmarkable state).
+- Smart stats: completion rate, runtime totals, activity heatmap, and breakdowns by genre/studio.
+- Optional enrichment + recommendations (TMDB/OMDb) when API keys are provided.
+- Google sign-in via Auth.js/NextAuth v5 beta with Postgres-backed sessions.
 
 ## Tech Stack
-- Next.js 16 (App Router, TypeScript, server components-first)
-- Tailwind CSS 3 + shadcn/ui primitives (Radix) + Lucide icons + Framer Motion + sonner toasts
-- Drizzle ORM + drizzle-kit migrations, PostgreSQL (Neon for prod)
-- Validation via Zod; mutations via Next.js Server Actions (no client state as source of truth)
+- Framework: Next.js 16 App Router (React 19, TypeScript)
+- UI: Tailwind CSS, Radix UI, `@stargazers-stella/cosmic-ui`, `lucide-react`, `framer-motion`, `sonner`
+- Data: PostgreSQL + Drizzle ORM + `drizzle-kit` migrations, Drizzle Studio
+- Auth: Auth.js / NextAuth (Google) + Drizzle adapter
+- Testing: Vitest
+- Observability: Vercel Analytics + Speed Insights
 
-## Architecture Notes
-- Server-rendered pages; DB is source of truth. UI refreshes by `revalidatePath("/")` after mutations.
-- No separate REST/GraphQL layer—create/update/delete are server actions with strict Zod parsing.
-- Minimal client state: only for form pending state, toasts, and the placeholder command palette (⌘/Ctrl + K).
-- Styling uses dark neutral base with indigo/violet accents, glass cards, and subtle motion on cards.
+## Architecture Highlights
+- Database is the source of truth; pages render server-first.
+- Mutations run through Server Actions with strict Zod parsing (no separate REST/GraphQL layer).
+- UI refreshes after writes via revalidation (minimal client state).
 
-## Getting Started (Local)
-1) Install deps
+## Quickstart (Local)
+**Prereqs:** Node 20+ recommended, Postgres 16+.
+
+1) Install dependencies
 ```bash
+cd Stargazers-Cosmic-Watchlist
 npm install
 ```
-2) Set env
+
+2) Create `.env.local`
 ```bash
 cp .env.example .env.local
-# Edit DATABASE_URL to point to your Postgres (local or Docker)
 ```
-Sample Docker command:
+Set `DATABASE_URL` to your Postgres connection string.
+
+3) Start Postgres (example via Docker)
 ```bash
 docker run --name watchlist-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=watchlist -p 5432:5432 -d postgres:16
 ```
-3) Push schema & inspect
-```bash
-npm run db:push         # create tables/enums
-npm run db:studio       # optional Drizzle Studio UI
-```
-If you want Google auth:
-- Create OAuth credentials (Web) in Google Cloud console.
-- Add authorized redirect: `http://localhost:3000/api/auth/callback/google`
-- Put `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `NEXTAUTH_SECRET` in `.env.local`.
-- (Optional) Add `TMDB_API_KEY` (v3) and/or `OMDB_API_KEY` to auto-enrich items and power recommendations.
 
-4) Seed sample data
+4) Apply schema (+ optional seed)
 ```bash
+npm run db:push
 npm run db:seed
 ```
-5) Dev server
+
+5) Run the app
 ```bash
 npm run dev
-# open http://localhost:3000
 ```
+Open `http://localhost:3000`.
+
+## Google Auth Setup (Optional)
+- Create OAuth credentials in Google Cloud Console (Web).
+- Add redirect URL: `http://localhost:3000/api/auth/callback/google`
+- Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `NEXTAUTH_SECRET` in `.env.local`.
+
+## Configuration
+Common env vars (see `.env.example`):
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | Postgres connection string |
+| `GOOGLE_CLIENT_ID` | Optional | Google OAuth |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth |
+| `NEXTAUTH_SECRET` | Optional | Session signing/encryption |
+| `TMDB_API_KEY` | Optional | Enrichment + recommendations |
+| `OMDB_API_KEY` | Optional | Enrichment fallback |
+| `OPENAI_API_KEY` | Optional | AI-powered features (if enabled) |
+| `IGDB_CLIENT_ID` | Optional | Game metadata (if enabled) |
+| `IGDB_CLIENT_SECRET` | Optional | Game metadata (if enabled) |
+| `ADMIN_EMAILS` | Optional | Comma-separated admin emails |
 
 ## Scripts
-- `npm run dev` – start Next.js dev server
-- `npm run build` / `start` – production build & run
-- `npm run lint` – ESLint
-- `npm run test` – Vitest unit tests (validation schemas)
-- `npm run db:push` – apply schema to DB
-- `npm run db:studio` – Drizzle Studio
-- `npm run db:seed` – seed sample watchlist rows
+- `npm run dev` - start dev server
+- `npm run build` / `npm run start` - production build/run
+- `npm run lint` - ESLint
+- `npm run test` - Vitest
+- `npm run db:push` - apply schema to DB
+- `npm run db:studio` - open Drizzle Studio
+- `npm run db:seed` - seed sample data
 
-## Features & Acceptance Criteria
-- Create items with title/type/status/rating/tags/notes; inline validation via Zod.
-- List items in reverse chronological order with glassy cards, badges, subtle motion, responsive layout.
-- Edit items in a dialog; delete with immediate feedback.
-- Filters for type/status + title search (URL search params).
-- Auto-enrich items via TMDB/OMDb (poster, year, runtime, synopsis, cast, genres, studios).
-- Smart stats: runtime totals, completion rate, activity spark bars, watched-day heatmap, genre/studio tallies.
-- Recommendations powered by your ratings/tags and TMDB similar titles.
-- Toast feedback on create/update/delete; server actions revalidate the list.
-- Dark premium theme with indigo/violet accents, rounded corners, focus states, hover lift.
-- Placeholder command palette (⌘/Ctrl + K or button) ready for future shortcuts.
-- Google OAuth sign-in with session-backed data separation (items scoped to the signed-in user).
+## Deployment Notes (Vercel + Neon)
+- Create a Neon database, set `DATABASE_URL` in Vercel, then run `npm run db:push` once against production.
+- Add Google OAuth + `NEXTAUTH_SECRET` to enable sign-in and user-scoped data.
 
-## Manual E2E Flow (MVP)
-1) Add an item (e.g., “Spirited Away”) with status/rating/tags/notes.  
-2) Confirm it appears at the top of the list.  
-3) Edit via the “pencil” dialog; save and confirm the card updates.  
-4) Delete via the trash icon; the card disappears.  
-5) Filter by type/status and search by title—list updates accordingly.
-
-## Deployment (Vercel + Neon)
-1) Create a Neon project and database; copy the connection string.
-2) In Vercel project settings, add `DATABASE_URL` (Neon connection string).
-3) Add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `NEXTAUTH_SECRET` env vars.
-3) Set the build command to `npm run build` (defaults are fine).
-4) Run `npm run db:push` once against the Neon connection to provision tables/enums.
-5) Deploy. Server actions run on Vercel’s serverless runtime; secrets stay server-side.
-
-## Known Limitations / Next Steps
-- No auth/multi-user yet (ideal future: Auth.js/NextAuth).
-- Command palette is a stub (no real shortcuts or quick-add yet).
-- No TMDB/YT enrichment or import/export.
-- No keyboard shortcuts beyond ⌘/Ctrl + K.
-
-## Why This Stack
-- **Server Actions + Drizzle**: keeps data-layer type-safe and colocated with UI, no extra API boilerplate.
-- **Zod**: strict parsing for every mutation path, preventing invalid rows.
-- **Tailwind + shadcn/ui**: fast iteration with consistent primitives and accessible Radix under the hood.
-- **Neon + Vercel**: fast Postgres + serverless pairing with minimal ops.
+## Roadmap
+- [ ] Import/export (Letterboxd/CSV) polish
+- [ ] Command palette actions beyond the stub UI
+- [ ] More enrichment sources and smarter recs
