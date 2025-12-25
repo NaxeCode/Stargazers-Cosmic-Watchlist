@@ -1,6 +1,6 @@
 # Stargazers Cosmic Watchlist
 
-A premium, server-first watchlist for anime, movies, TV, YouTube, and games: fast CRUD, shareable filters, and “smart stats” that make your backlog feel intentional instead of endless.
+A premium, server-first watchlist for anime, movies, TV, and games: fast CRUD, shareable filters, and “smart stats” that make your backlog feel intentional instead of endless.
 
 Design note: this app uses `@stargazers-stella/cosmic-ui` for shared design DNA (token-first theming, Radix-based primitives, and the cosmic/glass visual language).
 
