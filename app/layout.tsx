@@ -28,12 +28,16 @@ const themeInitScript = `
 (() => {
   try {
     const stored = localStorage.getItem("watchlist-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const theme = stored === "light" || stored === "dark"
       ? stored
-      : "dark";
+      : prefersDark
+        ? "dark"
+        : "light";
     document.documentElement.classList.toggle("dark", theme === "dark");
   } catch (error) {
-    document.documentElement.classList.add("dark");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) document.documentElement.classList.add("dark");
   }
 })();
 `;
@@ -50,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} min-h-screen bg-background text-foreground antialiased`}
       >

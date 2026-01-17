@@ -363,7 +363,9 @@ export function LandingPage({ isSignedIn = false }: { isSignedIn?: boolean }) {
                 <p className="mb-6 text-muted-foreground">
                   Sign in with Google to unlock your personal cosmic watchlist
                 </p>
-                <AuthButtons isSignedIn={isSignedIn} />
+                <div className="flex justify-center">
+                  <AuthButtons isSignedIn={isSignedIn} />
+                </div>
                 <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
                   <Badge variant="outline">Private & Secure</Badge>
                   <Badge variant="outline">Server Actions</Badge>
