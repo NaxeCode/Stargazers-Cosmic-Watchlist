@@ -17,6 +17,7 @@ export function ItemSearch({
   params,
   uniqueTags,
   titles = [],
+  basePath = "/",
 }: {
   currentTitle: string;
   currentTag: string;
@@ -24,6 +25,7 @@ export function ItemSearch({
   params: Params;
   uniqueTags: string[];
   titles?: string[];
+  basePath?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -75,7 +77,7 @@ export function ItemSearch({
       if (typeFilter && typeFilter !== "all") next.set("type", typeFilter);
       else next.delete("type");
 
-      router.push(`/?${next.toString()}`, { scroll: false });
+      router.push(`${basePath}?${next.toString()}`, { scroll: false });
     });
     setShowSuggestions(false);
   };
@@ -192,7 +194,7 @@ export function ItemSearch({
             else next.delete("type");
 
             startTransition(() => {
-              router.push(`/?${next.toString()}`, { scroll: false });
+              router.push(`${basePath}?${next.toString()}`, { scroll: false });
             });
           }}
         >

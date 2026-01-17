@@ -12,9 +12,10 @@ type Props = {
   type?: string;
   status?: string;
   q?: string;
+  basePath?: string;
 };
 
-export function FiltersBar({ type, status, q }: Props) {
+export function FiltersBar({ type, status, q, basePath = "/" }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -27,7 +28,7 @@ export function FiltersBar({ type, status, q }: Props) {
       params.set(key, value);
     }
     startTransition(() => {
-      router.push(`/?${params.toString()}`);
+      router.push(`${basePath}?${params.toString()}`);
     });
   };
 
@@ -37,7 +38,7 @@ export function FiltersBar({ type, status, q }: Props) {
   };
 
   const onReset = () => {
-    startTransition(() => router.push("/"));
+    startTransition(() => router.push(basePath));
   };
 
   return (

@@ -92,7 +92,8 @@ async function validatePosters() {
     invalid.forEach(item => {
       console.log(`  - ${item.title}`);
       console.log(`    URL: ${item.posterUrl}`);
-      console.log(`    Error: ${item.error || `HTTP ${item.code}`}\n`);
+      const errorMsg = (item as any).error || `HTTP ${(item as any).code}`;
+      console.log(`    Error: ${errorMsg}\n`);
     });
   }
 

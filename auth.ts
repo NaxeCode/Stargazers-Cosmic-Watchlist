@@ -48,10 +48,11 @@ const config: NextAuthConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to home page after sign-in
+      const dashboardUrl = `${baseUrl}/dashboard`;
+      if (url === baseUrl || url === `${baseUrl}/`) return dashboardUrl;
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
+      if (new URL(url).origin === baseUrl) return url;
+      return dashboardUrl;
     },
   },
   trustHost: true,

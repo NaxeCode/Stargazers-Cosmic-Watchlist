@@ -127,6 +127,7 @@ export async function createItemAction(
     }
     await trackEvent("item_created", { type: payload.type, status: payload.status });
     revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: "Added to your watchlist." };
   } catch (err) {
     return { error: (err as Error).message || "Failed to create item." };
@@ -200,6 +201,7 @@ export async function updateItemAction(
 
     await trackEvent("item_updated", { id: payload.id });
     revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: "Saved changes." };
   } catch (err) {
     return { error: (err as Error).message || "Failed to update item." };
@@ -233,6 +235,7 @@ export async function deleteItemAction(
     await db.delete(items).where(and(eq(items.id, id), eq(items.userId, userId)));
     await trackEvent("item_deleted", { id });
     revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: "Item removed." };
   } catch (err) {
     return { error: (err as Error).message || "Failed to delete item." };
@@ -341,9 +344,41 @@ export async function bulkUpdateStatusAction(
       .where(and(eq(items.userId, userId), inArray(items.id, ids)));
 
     revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: `Updated ${ids.length} item(s) to "${status}".` };
   } catch (err) {
     return { error: (err as Error).message || "Bulk update failed." };
+  }
+}
+
+export async function bulkDeleteItemsAction(
+  _prevState: ActionState | undefined,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: "Please sign in to bulk delete." };
+
+  const idsRaw = (formData.get("ids") as string | null) ?? "";
+  const ids = idsRaw
+    .split(",")
+    .map((v) => Number(v))
+    .filter((n) => Number.isInteger(n) && n > 0);
+
+  if (!ids.length) return { error: "Select at least one item." };
+
+  try {
+    const deleted = await db
+      .delete(items)
+      .where(and(eq(items.userId, userId), inArray(items.id, ids)))
+      .returning({ id: items.id });
+
+    await trackEvent("items_bulk_deleted", { count: deleted.length });
+    revalidatePath("/");
+    revalidatePath("/dashboard");
+    return { success: `Deleted ${deleted.length} item(s).` };
+  } catch (err) {
+    return { error: (err as Error).message || "Bulk delete failed." };
   }
 }
 
@@ -604,4 +639,35 @@ function safeParseArray(content: string): { id: number; genres: string[] }[] | n
   }
 
   return null;
+}
+
+// Dashboard Preferences Actions
+export async function toggleSectionAction(sectionId: string): Promise<ActionState> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: "Please sign in to save preferences." };
+
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { preferences: true },
+    });
+
+    const currentPrefs = (user?.preferences as { collapsedSections?: string[] }) || {};
+    const collapsed = currentPrefs.collapsedSections || [];
+
+    const newCollapsed = collapsed.includes(sectionId)
+      ? collapsed.filter((id) => id !== sectionId)
+      : [...collapsed, sectionId];
+
+    await db
+      .update(users)
+      .set({ preferences: { ...currentPrefs, collapsedSections: newCollapsed } as any })
+      .where(eq(users.id, userId));
+
+    revalidatePath("/");
+    return { success: "Preferences saved." };
+  } catch (err) {
+    return { error: (err as Error).message || "Failed to save preferences." };
+  }
 }

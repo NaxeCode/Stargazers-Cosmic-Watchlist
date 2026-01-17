@@ -25,6 +25,8 @@ export function ItemsView({
   params,
   pageSize,
   aiAvailable,
+  readOnly = false,
+  basePath = "/",
 }: {
   items: Item[];
   allItems: Minimal[];
@@ -34,6 +36,8 @@ export function ItemsView({
   params: Record<string, string | string[] | undefined>;
   pageSize: number;
   aiAvailable: boolean;
+  readOnly?: boolean;
+  basePath?: string;
 }) {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -44,16 +48,24 @@ export function ItemsView({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <PaginationControls page={page} totalPages={totalPages} params={params} pageSize={pageSize} />
-        <div className="flex flex-wrap items-center gap-2">
-          <AiCategorizeButtons disabled={!aiAvailable} selectedIds={selectedIds} />
-          <CommandPalette
-            withTrigger
-            items={allItems}
-            selected={selectedIds}
-            onSelectedChange={setSelectedIds}
-          />
-        </div>
+        <PaginationControls
+          page={page}
+          totalPages={totalPages}
+          params={params}
+          pageSize={pageSize}
+          basePath={basePath}
+        />
+        {!readOnly && (
+          <div className="flex flex-wrap items-center gap-2">
+            <AiCategorizeButtons disabled={!aiAvailable} selectedIds={selectedIds} />
+            <CommandPalette
+              withTrigger
+              items={allItems}
+              selected={selectedIds}
+              onSelectedChange={setSelectedIds}
+            />
+          </div>
+        )}
       </div>
       <div className="grid gap-3">
         {items.map((item, idx) => (
@@ -63,6 +75,8 @@ export function ItemsView({
             index={idx}
             selected={selectedIds.includes(item.id)}
             onToggle={toggleSelect}
+            readOnly={readOnly}
+            basePath={basePath}
           />
         ))}
       </div>

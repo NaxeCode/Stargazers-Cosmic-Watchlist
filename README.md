@@ -25,7 +25,7 @@ Add your images to `docs/screenshots/` and replace these placeholders.
 - Data: PostgreSQL + Drizzle ORM + `drizzle-kit` migrations, Drizzle Studio
 - Auth: Auth.js / NextAuth (Google) + Drizzle adapter
 - Testing: Vitest
-- Observability: Vercel Analytics + Speed Insights
+- Analytics: Google Analytics (optional)
 
 ## Architecture Highlights
 - Database is the source of truth; pages render server-first.
@@ -78,6 +78,7 @@ Common env vars (see `.env.example`):
 | `GOOGLE_CLIENT_ID` | Optional | Google OAuth |
 | `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth |
 | `NEXTAUTH_SECRET` | Optional | Session signing/encryption |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional | Google Analytics tracking ID (e.g., G-XXXXXXXXXX) |
 | `TMDB_API_KEY` | Optional | Enrichment + recommendations |
 | `OMDB_API_KEY` | Optional | Enrichment fallback |
 | `OPENAI_API_KEY` | Optional | AI-powered features (if enabled) |

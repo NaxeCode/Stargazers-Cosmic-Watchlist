@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ITEM_TYPES, STATUSES } from "@/lib/constants";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { bulkUpdateStatusAction } from "@/app/actions";
+import { bulkDeleteItemsAction, bulkUpdateStatusAction } from "@/app/actions";
 import { DialogTitle } from "@/components/ui/dialog";
 
 type MinimalItem = {
@@ -43,6 +43,7 @@ export function CommandPalette({
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [typeFilter, setTypeFilter] = useState<string | undefined>(undefined);
   const [pending, startTransition] = useTransition();
+  const [pendingDelete, startDelete] = useTransition();
   const selected = controlledSelected ?? internalSelected;
   const setSelected = onSelectedChange ?? setInternalSelected;
 
@@ -101,6 +102,27 @@ export function CommandPalette({
     });
   };
 
+  const onBulkDelete = () => {
+    if (!selected.length) {
+      toast.error("Select at least one item");
+      return;
+    }
+    const confirmed = window.confirm(`Delete ${selected.length} item(s)? This cannot be undone.`);
+    if (!confirmed) return;
+    startDelete(async () => {
+      const formData = new FormData();
+      formData.append("ids", selected.join(","));
+      const res = await bulkDeleteItemsAction(undefined, formData);
+      if (res?.success) {
+        toast.success(res.success);
+        applySelection([]);
+        setOpen(false);
+      } else if (res?.error) {
+        toast.error(res.error);
+      }
+    });
+  };
+
   return (
     <>
       {withTrigger && <CommandTriggerButton onClick={() => setOpen(true)} />}
@@ -141,7 +163,7 @@ export function CommandPalette({
               </div>
             </div>
 
-          <div className="grid gap-2 sm:grid-cols-3 sm:items-center">
+          <div className="grid gap-2 sm:grid-cols-4 sm:items-center">
             <Select value={status} onValueChange={(v) => setStatus(v)}>
               <SelectTrigger className="h-9 w-full text-sm">
                 <SelectValue placeholder="Bulk status" />
@@ -152,7 +174,7 @@ export function CommandPalette({
                       {s}
                     </SelectItem>
                   ))}
-                </SelectContent>
+              </SelectContent>
             </Select>
             <Select value={typeFilter ?? "all"} onValueChange={(v) => setTypeFilter(v === "all" ? undefined : v)}>
               <SelectTrigger className="h-9 w-full text-sm">
@@ -175,6 +197,15 @@ export function CommandPalette({
               className="w-full sm:w-auto"
             >
               {pending ? "Updating..." : "Apply to selected"}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={pendingDelete || !selected.length}
+              onClick={onBulkDelete}
+              className="w-full sm:w-auto"
+            >
+              {pendingDelete ? "Deleting..." : "Delete selected"}
             </Button>
           </div>
         </div>

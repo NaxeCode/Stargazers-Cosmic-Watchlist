@@ -35,6 +35,9 @@ export const users = pgTable("users", {
   publicHandle: text("public_handle").unique(),
   publicEnabled: boolean("public_enabled").notNull().default(false),
   admin: boolean("admin").notNull().default(false),
+  preferences: jsonb("preferences").$type<{
+    collapsedSections?: string[];
+  }>().default({}).notNull(),
 });
 
 export const accounts = pgTable(

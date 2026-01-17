@@ -57,6 +57,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
+        orbitron: ["var(--font-orbitron)", "sans-serif"],
       },
       keyframes: {
         shimmer: {

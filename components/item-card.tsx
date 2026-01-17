@@ -22,11 +22,15 @@ export const ItemCard = memo(function ItemCard({
   index,
   selected,
   onToggle,
+  readOnly = false,
+  basePath = "/",
 }: {
   item: Item;
   index: number;
   selected: boolean;
-  onToggle: (id: number) => void;
+  onToggle?: (id: number) => void;
+  readOnly?: boolean;
+  basePath?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -67,10 +71,10 @@ export const ItemCard = memo(function ItemCard({
       next.set("tag", formatted);
       next.set("page", "1");
       startTransition(() => {
-        router.push(`/?${next.toString()}`, { scroll: false });
+        router.push(`${basePath}?${next.toString()}`, { scroll: false });
       });
     },
-    [router, searchParams, startTransition],
+    [basePath, router, searchParams, startTransition],
   );
 
   return (
@@ -105,25 +109,29 @@ export const ItemCard = memo(function ItemCard({
               {item.status}
             </Badge>
             <div className="ml-auto flex items-center gap-2">
-              {item.rating !== null && item.rating !== undefined && (
-                <span className="surface-muted inline-flex items-center gap-1 rounded-full border border-border/70 px-2 py-1 text-[11px] font-medium">
-                  <Star className="h-3 w-3 text-amber-400" />
-                  {item.rating}/10
-                </span>
-              )}
-              <label className="surface-muted flex items-center gap-1.5 rounded-full px-2 py-1 shadow-inner">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 cursor-pointer rounded border border-border/70 bg-transparent accent-primary"
-                  checked={selected}
-                  onChange={() => onToggle(item.id)}
-                  aria-label="Select item"
-                />
-              </label>
-              <EditItemDialog item={item} />
-              <DeleteButton id={item.id} />
-            </div>
+            {item.rating !== null && item.rating !== undefined && (
+              <span className="surface-muted inline-flex items-center gap-1 rounded-full border border-border/70 px-2 py-1 text-[11px] font-medium">
+                <Star className="h-3 w-3 text-amber-400" />
+                {item.rating}/10
+              </span>
+            )}
+            {!readOnly && (
+              <>
+                <label className="surface-muted flex items-center gap-1.5 rounded-full px-2 py-1 shadow-inner">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 cursor-pointer rounded border border-border/70 bg-transparent accent-primary"
+                    checked={selected}
+                    onChange={() => onToggle?.(item.id)}
+                    aria-label="Select item"
+                  />
+                </label>
+                <EditItemDialog item={item} />
+                <DeleteButton id={item.id} />
+              </>
+            )}
           </div>
+        </div>
 
           <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
             <CalendarClock className="h-3 w-3" />

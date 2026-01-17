@@ -12,11 +12,13 @@ export function PaginationControls({
   totalPages,
   params,
   pageSize = 10,
+  basePath = "/",
 }: {
   page: number;
   totalPages: number;
   params: Params;
   pageSize?: number;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -34,7 +36,7 @@ export function PaginationControls({
     search.set("page", String(targetPage));
     if (nextPageSize) search.set("pageSize", String(nextPageSize));
     startTransition(() => {
-      router.push(`/?${search.toString()}`, { scroll: false });
+      router.push(`${basePath}?${search.toString()}`, { scroll: false });
     });
   };
 

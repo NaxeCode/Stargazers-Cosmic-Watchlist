@@ -142,7 +142,7 @@ const FEATURES = [
   },
 ];
 
-export function LandingPage() {
+export function LandingPage({ isSignedIn = false }: { isSignedIn?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -197,7 +197,7 @@ export function LandingPage() {
         transition={{ delay: 0.5 }}
         className="fixed right-6 top-6 z-50"
       >
-        <AuthButtons isSignedIn={false} />
+        <AuthButtons isSignedIn={isSignedIn} />
       </motion.div>
 
       {/* Hero Section */}
@@ -255,7 +255,7 @@ export function LandingPage() {
             transition={{ delay: 0.5 }}
             className="flex flex-col items-center gap-4"
           >
-            <AuthButtons isSignedIn={false} />
+            <AuthButtons isSignedIn={isSignedIn} />
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <Play className="h-4 w-4" />
               Scroll to see it in action
@@ -302,6 +302,7 @@ export function LandingPage() {
                   index={index}
                   selected={false}
                   onToggle={() => {}}
+                  readOnly
                 />
               </motion.div>
             ))}
@@ -348,29 +349,29 @@ export function LandingPage() {
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            viewport={{ once: true }}
-            className="mt-16 text-center"
-          >
+          <div className="mt-16 text-center">
             <div className="mx-auto max-w-2xl rounded-3xl border border-border/70 bg-gradient-to-br from-white via-indigo-50 to-slate-100 p-10 shadow-2xl dark:from-[#0f1020] dark:via-[#0b0c18] dark:to-[#070710]">
               <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.28),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(14,165,233,0.22),transparent_30%),radial-gradient(circle_at_50%_80%,rgba(236,72,153,0.16),transparent_32%)] blur-[1px]" />
-              <div className="relative">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                viewport={{ once: true }}
+                className="relative"
+              >
                 <h3 className="mb-4 text-3xl font-bold">Ready to start tracking?</h3>
                 <p className="mb-6 text-muted-foreground">
                   Sign in with Google to unlock your personal cosmic watchlist
                 </p>
-                <AuthButtons isSignedIn={false} />
+                <AuthButtons isSignedIn={isSignedIn} />
                 <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
                   <Badge variant="outline">Private & Secure</Badge>
                   <Badge variant="outline">Server Actions</Badge>
                   <Badge variant="outline">Real-time Sync</Badge>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
