@@ -34,7 +34,8 @@ export default async function Demo({ searchParams }: { searchParams: SearchParam
     .filter(Boolean)
     .map((t) => t.toLowerCase());
 
-  const filtered = DEMO_ITEMS.filter((item) => {
+  const shuffled = shuffleItems(DEMO_ITEMS);
+  const filtered = shuffled.filter((item) => {
     if (typeFilter && item.type !== typeFilter) return false;
     if (statusFilter && item.status !== statusFilter) return false;
 
@@ -132,4 +133,13 @@ export default async function Demo({ searchParams }: { searchParams: SearchParam
       basePath="/demo"
     />
   );
+}
+
+function shuffleItems<T>(items: T[]) {
+  const copy = items.slice();
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
