@@ -17,6 +17,11 @@ type DemoItem = {
   notes?: string | null;
   createdAt: Date;
   userId: string;
+  imdbId?: string | null;
+  tmdbId?: number | null;
+  metadataSource?: string | null;
+  completedAt?: Date | null;
+  updatedAt?: Date | null;
 };
 
 export const DEMO_ITEMS: DemoItem[] = [
@@ -37,6 +42,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Best theater experience in years.",
     createdAt: new Date("2024-03-12"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 693134,
+    metadataSource: "tmdb",
+    completedAt: new Date("2024-03-12"),
+    updatedAt: new Date("2024-03-12"),
   },
   {
     id: 2,
@@ -55,6 +65,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Intense and unforgettable.",
     createdAt: new Date("2024-01-20"),
     userId: "demo",
+    imdbId: "tt15398776",
+    tmdbId: 872585,
+    metadataSource: "tmdb",
+    completedAt: new Date("2024-01-20"),
+    updatedAt: new Date("2024-01-20"),
   },
   {
     id: 3,
@@ -73,6 +88,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "A blast start to finish.",
     createdAt: new Date("2023-12-18"),
     userId: "demo",
+    imdbId: "tt1517268",
+    tmdbId: 346698,
+    metadataSource: "tmdb",
+    completedAt: new Date("2023-12-18"),
+    updatedAt: new Date("2023-12-18"),
   },
   {
     id: 4,
@@ -91,6 +111,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Pure fan service in the best way.",
     createdAt: new Date("2023-11-06"),
     userId: "demo",
+    imdbId: "tt10872600",
+    tmdbId: 634649,
+    metadataSource: "tmdb",
+    completedAt: new Date("2023-11-06"),
+    updatedAt: new Date("2023-11-06"),
   },
   {
     id: 5,
@@ -109,6 +134,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Visuals are insane.",
     createdAt: new Date("2023-10-02"),
     userId: "demo",
+    imdbId: "tt1630029",
+    tmdbId: 76600,
+    metadataSource: "tmdb",
+    completedAt: new Date("2023-10-02"),
+    updatedAt: new Date("2023-10-02"),
   },
   {
     id: 6,
@@ -127,6 +157,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Episode 3 wrecked me.",
     createdAt: new Date("2024-02-10"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 100088,
+    metadataSource: "tmdb",
+    completedAt: new Date("2024-02-10"),
+    updatedAt: new Date("2024-02-10"),
   },
   {
     id: 7,
@@ -145,6 +180,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Rewatching before the final season.",
     createdAt: new Date("2024-05-14"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 66732,
+    metadataSource: "tmdb",
+    completedAt: null,
+    updatedAt: new Date("2024-05-14"),
   },
   {
     id: 8,
@@ -163,6 +203,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "The dance scene is iconic.",
     createdAt: new Date("2024-01-05"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 119051,
+    metadataSource: "tmdb",
+    completedAt: new Date("2024-01-05"),
+    updatedAt: new Date("2024-01-05"),
   },
   {
     id: 9,
@@ -181,6 +226,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Grogu forever.",
     createdAt: new Date("2024-04-03"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 82856,
+    metadataSource: "tmdb",
+    completedAt: null,
+    updatedAt: new Date("2024-04-03"),
   },
   {
     id: 10,
@@ -199,6 +249,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Binged in a weekend.",
     createdAt: new Date("2023-12-02"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: 93405,
+    metadataSource: "tmdb",
+    completedAt: new Date("2023-12-02"),
+    updatedAt: new Date("2023-12-02"),
   },
   {
     id: 11,
@@ -217,6 +272,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Season 2 was wild.",
     createdAt: new Date("2024-06-22"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: null,
+    updatedAt: new Date("2024-06-22"),
   },
   {
     id: 12,
@@ -235,6 +295,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Animation is top tier.",
     createdAt: new Date("2024-02-28"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-02-28"),
+    updatedAt: new Date("2024-02-28"),
   },
   {
     id: 13,
@@ -253,6 +318,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Final season was intense.",
     createdAt: new Date("2024-03-18"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-03-18"),
+    updatedAt: new Date("2024-03-18"),
   },
   {
     id: 14,
@@ -271,6 +341,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Anya steals every scene.",
     createdAt: new Date("2024-07-01"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: null,
+    updatedAt: new Date("2024-07-01"),
   },
   {
     id: 15,
@@ -289,6 +364,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Wild tone swings, in a good way.",
     createdAt: new Date("2024-01-25"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-01-25"),
+    updatedAt: new Date("2024-01-25"),
   },
   {
     id: 16,
@@ -307,6 +387,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "So many choices, so little time.",
     createdAt: new Date("2024-05-03"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: null,
+    updatedAt: new Date("2024-05-03"),
   },
   {
     id: 17,
@@ -325,6 +410,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Endlessly inventive.",
     createdAt: new Date("2024-04-21"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-04-21"),
+    updatedAt: new Date("2024-04-21"),
   },
   {
     id: 18,
@@ -343,6 +433,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Still discovering hidden areas.",
     createdAt: new Date("2024-02-07"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-02-07"),
+    updatedAt: new Date("2024-02-07"),
   },
   {
     id: 19,
@@ -361,6 +456,11 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Traversal feels so good.",
     createdAt: new Date("2024-06-05"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: null,
+    updatedAt: new Date("2024-06-05"),
   },
   {
     id: 20,
@@ -379,5 +479,10 @@ export const DEMO_ITEMS: DemoItem[] = [
     notes: "Incredible character work.",
     createdAt: new Date("2024-03-30"),
     userId: "demo",
+    imdbId: null,
+    tmdbId: null,
+    metadataSource: null,
+    completedAt: new Date("2024-03-30"),
+    updatedAt: new Date("2024-03-30"),
   },
 ];
