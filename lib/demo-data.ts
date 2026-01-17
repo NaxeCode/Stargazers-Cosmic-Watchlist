@@ -17,11 +17,11 @@ type DemoItem = {
   notes: string | null;
   createdAt: Date;
   userId: string;
-  imdbId?: string | null;
-  tmdbId?: number | null;
-  metadataSource?: string | null;
-  completedAt?: Date | null;
-  updatedAt?: Date | null;
+  imdbId: string | null;
+  tmdbId: number | null;
+  metadataSource: string | null;
+  completedAt: Date | null;
+  updatedAt: Date;
 };
 
 export const DEMO_ITEMS: DemoItem[] = [
@@ -374,7 +374,7 @@ export const DEMO_ITEMS: DemoItem[] = [
     id: 16,
     title: "Baldur's Gate 3",
     type: "game",
-    status: "playing",
+    status: "watching",
     rating: 9.6,
     posterUrl: "https://images.igdb.com/igdb/image/upload/t_cover_big/co670h.jpg",
     synopsis: "Gather your party and return to the Forgotten Realms in a tale of fellowship and betrayal.",
@@ -443,7 +443,7 @@ export const DEMO_ITEMS: DemoItem[] = [
     id: 19,
     title: "Marvel's Spider-Man 2",
     type: "game",
-    status: "playing",
+    status: "watching",
     rating: 8.9,
     posterUrl: null,
     synopsis: "Peter Parker and Miles Morales face new threats as they protect New York City.",
