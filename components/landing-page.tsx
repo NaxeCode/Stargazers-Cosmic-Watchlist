@@ -203,7 +203,7 @@ export function LandingPage({ isSignedIn = false }: { isSignedIn?: boolean }) {
       {/* Hero Section */}
       <motion.section
         style={{ opacity }}
-        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-20"
+        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -245,8 +245,6 @@ export function LandingPage({ isSignedIn = false }: { isSignedIn?: boolean }) {
             className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl"
           >
             A premium, server-first watchlist for anime, movies, TV shows, and games.
-            <br />
-            Dark, glassy, and built for late-night sessions.
           </motion.p>
 
           <motion.div

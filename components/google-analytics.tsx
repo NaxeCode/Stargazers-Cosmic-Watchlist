@@ -1,7 +1,10 @@
 import Script from "next/script";
 
-export function GoogleAnalytics() {
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+export function GoogleAnalytics({
+  measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+}: {
+  measurementId?: string;
+}) {
 
   // Only render if GA measurement ID is configured
   if (!measurementId) {

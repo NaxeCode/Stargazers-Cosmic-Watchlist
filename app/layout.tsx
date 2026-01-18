@@ -65,7 +65,7 @@ export default function RootLayout({
         />
         {children}
         <Toaster richColors position="top-right" />
-        <GoogleAnalytics />
+        <GoogleAnalytics measurementId="G-BTVMPMSKCE" />
       </body>
     </html>
   );
