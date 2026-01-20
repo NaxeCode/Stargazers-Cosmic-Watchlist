@@ -9,8 +9,7 @@ Premium, server-first watchlist for anime, movies, TV, and games. Fast CRUD, sha
 ![postgres](https://img.shields.io/badge/postgres-16-316192?logo=postgresql&logoColor=white&style=flat)
 ![drizzle](https://img.shields.io/badge/drizzle-orm-6366f1?style=flat)
 
-## Demo
-- Live: [Open live demo](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github-readme&utm_medium=link&utm_campaign=career-portfolio-2026&utm_content=demo)
+- Live: [Open live site](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github-readme&utm_medium=link&utm_campaign=career-portfolio-2026&utm_content=demo) ✨
 
 ## Screenshots
 
