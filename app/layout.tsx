@@ -43,9 +43,9 @@ const themeInitScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "Watchlist",
+  title: "Cosmic Watchlist",
   description:
-    "A premium, server-first watchlist for tracking anime, movies, tv, games, and more.",
+    "A premium, server-first watchlist for tracking anime, movies, TV, games, and more.",
 };
 
 export default function RootLayout({

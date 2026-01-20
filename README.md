@@ -1,18 +1,22 @@
-# Stargazers Cosmic Watchlist
+# Cosmic Watchlist
 
-A premium, server-first watchlist for anime, movies, TV, and games: fast CRUD, shareable filters, and “smart stats” that make your backlog feel intentional instead of endless.
+A premium, server-first watchlist for anime, movies, TV, and games: fast CRUD, shareable filters, and smart stats that make your backlog feel intentional instead of endless.
 
 Design note: this app uses `@stargazers-stella/cosmic-ui` for shared design DNA (token-first theming, Radix-based primitives, and the cosmic/glass visual language).
 
+## Demo
+- Live: add URL
+
 ## Screenshots
-Add your images to `docs/screenshots/` and replace these placeholders.
+Screens from the live demo.
 
-![Dashboard / list view](docs/screenshots/dashboard.png)
-![Create + edit dialog](docs/screenshots/edit-dialog.png)
-![Smart stats + recommendations](docs/screenshots/stats-recs.png)
-![Share profile](docs/screenshots/share.png)
+![Landing hero](docs/screenshots/landing-header.png)
+![Dashboard / collection](docs/screenshots/demo-your-collection.png)
+![Stats + recommendations](docs/screenshots/demo-recommendations.png)
+![Command center palette](docs/screenshots/demo-command-center-palette.png)
+![Architecture diagram](docs/screenshots/architecture.png)
 
-## Key Features
+## Features
 - Server-first CRUD with type-safe validation (Zod) and mutations (Next.js Server Actions).
 - Filters/search via URL params (shareable, bookmarkable state).
 - Smart stats: completion rate, runtime totals, activity heatmap, and breakdowns by genre/studio.
@@ -32,7 +36,10 @@ Add your images to `docs/screenshots/` and replace these placeholders.
 - Mutations run through Server Actions with strict Zod parsing (no separate REST/GraphQL layer).
 - UI refreshes after writes via revalidation (minimal client state).
 
-## Quickstart (Local)
+## Tradeoffs
+- Serverless hosting keeps costs low and scales cleanly without always-on servers. It reduces ops overhead and is a good fit for a watchlist app, even though it’s not ideal for every workload.
+
+## Quickstart
 **Prereqs:** Node 20+ recommended, Postgres 16+.
 
 1) Install dependencies

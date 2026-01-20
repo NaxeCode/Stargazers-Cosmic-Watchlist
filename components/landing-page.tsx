@@ -219,7 +219,7 @@ export function LandingPage({ isSignedIn = false }: { isSignedIn?: boolean }) {
           >
             <Badge variant="glow" className="gap-2 px-6 py-3 text-sm uppercase tracking-[0.3em]">
               <Sparkles className="h-4 w-4" />
-              Stargazers Cosmic Watchlist
+              Cosmic Watchlist
             </Badge>
           </motion.div>
 
