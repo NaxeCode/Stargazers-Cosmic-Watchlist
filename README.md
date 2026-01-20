@@ -2,7 +2,7 @@
 
 Premium, server-first watchlist for anime, movies, TV, and games. Fast CRUD, shareable filters, and smart stats.
 
-[![demo](https://img.shields.io/badge/demo-live-0ea5e9?logo=vercel&logoColor=white&style=flat)](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github&utm_medium=readme&utm_campaign=career-portfolio-2026&utm_content=badge)
+[![demo](https://img.shields.io/badge/demo-live-0ea5e9?logo=vercel&logoColor=white&style=flat)](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github-readme&utm_medium=link&utm_campaign=career-portfolio-2026&utm_content=badge)
 ![nextjs](https://img.shields.io/badge/next.js-16-000000?logo=nextdotjs&logoColor=white&style=flat)
 ![react](https://img.shields.io/badge/react-19-149eca?logo=react&logoColor=white&style=flat)
 ![tailwind](https://img.shields.io/badge/tailwindcss-3.4-38bdf8?logo=tailwindcss&logoColor=white&style=flat)
@@ -10,7 +10,7 @@ Premium, server-first watchlist for anime, movies, TV, and games. Fast CRUD, sha
 ![drizzle](https://img.shields.io/badge/drizzle-orm-6366f1?style=flat)
 
 ## Demo
-- Live: [Open live demo](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github&utm_medium=readme&utm_campaign=career-portfolio-2026&utm_content=demo)
+- Live: [Open live demo](https://stargazers-cosmic-watchlist.vercel.app/?utm_source=github-readme&utm_medium=link&utm_campaign=career-portfolio-2026&utm_content=demo)
 
 ## Screenshots
 
