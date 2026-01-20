@@ -131,6 +131,6 @@ Common env vars (see `.env.example`):
 
 ## Roadmap
 
-- [ ] Import/export (Letterboxd/CSV) polish
-- [ ] Command palette actions beyond the stub UI
+- [x] Import/export (Letterboxd/CSV) polish
+- [x] Command palette actions beyond the stub UI
 - [ ] More enrichment sources and smarter recs
