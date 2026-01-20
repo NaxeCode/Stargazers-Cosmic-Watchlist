@@ -10,9 +10,15 @@ Design note: this app uses `@stargazers-stella/cosmic-ui` for shared design DNA 
 ## Screenshots
 Screens from the live demo.
 
-![Landing hero](docs/screenshots/landing-header.png)
-![Dashboard / collection](docs/screenshots/demo-your-collection.png)
-![Stats + recommendations](docs/screenshots/demo-recommendations.png)
+<p align="center">
+  <img src="docs/screenshots/landing-header.png" width="80%" alt="Landing hero" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/demo-your-collection.png" width="48%" alt="Dashboard / collection" />
+  <img src="docs/screenshots/demo-recommendations.png" width="48%" alt="Stats + recommendations" />
+</p>
+
 ![Command center palette](docs/screenshots/demo-command-center-palette.png)
 ![Architecture diagram](docs/screenshots/architecture.png)
 
