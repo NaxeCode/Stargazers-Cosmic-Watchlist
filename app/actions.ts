@@ -42,6 +42,14 @@ function resolveCompletedAt(
   return previousCompletedAt ?? null;
 }
 
+function shouldRequireMetadata(type: string) {
+  return type === "movie" || type === "tv";
+}
+
+function shouldEnrichType(type: string) {
+  return type === "movie" || type === "tv" || type === "anime" || type === "game";
+}
+
 async function enrichItemRecord(id: number, title: string, type: string) {
   const meta = await fetchMetadata(title, type);
   if (!meta) return;
@@ -97,7 +105,7 @@ export async function createItemAction(
   }
 
   let metadataPatch: Record<string, unknown> = {};
-  const needsMetadata = (payload.type === "movie" || payload.type === "tv") &&
+  const needsMetadata = shouldRequireMetadata(payload.type) &&
     (process.env.TMDB_API_KEY || process.env.OMDB_API_KEY);
 
   if (needsMetadata) {
@@ -125,7 +133,9 @@ export async function createItemAction(
       })
       .returning({ id: items.id });
     if (created?.id) {
-      await enrichItemRecord(created.id, payload.title, payload.type);
+      if (shouldEnrichType(payload.type)) {
+        await enrichItemRecord(created.id, payload.title, payload.type);
+      }
     }
     await trackEvent("item_created", { type: payload.type, status: payload.status });
     revalidatePath("/");
@@ -197,7 +207,7 @@ export async function updateItemAction(
       existing.runtimeMinutes === null ||
       existing.runtimeMinutes === undefined;
 
-    if (needsMetadata) {
+    if (needsMetadata && shouldEnrichType(payload.type)) {
       await enrichItemRecord(payload.id, payload.title, payload.type);
     }
 
@@ -301,7 +311,9 @@ export async function importLetterboxdAction(
 
     const toEnrich = inserted.slice(0, 20);
     for (const row of toEnrich) {
-      await enrichItemRecord(row.id, row.title, row.type);
+      if (shouldEnrichType(row.type)) {
+        await enrichItemRecord(row.id, row.title, row.type);
+      }
     }
 
     revalidatePath("/");

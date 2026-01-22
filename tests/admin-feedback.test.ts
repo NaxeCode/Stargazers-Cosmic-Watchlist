@@ -57,9 +57,10 @@ describe("updateEventStatusAction", () => {
 
   it("rejects invalid id", async () => {
     const res = await updateEventStatusAction(new FormData());
-    (res as any).id = -1;
-    expect(res.error).toBeDefined();
+    expect(res).toBeUndefined();
     expect(mockDbUpdate).not.toHaveBeenCalled();
+    expect(mockRevalidate).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it("rejects invalid status", async () => {
@@ -67,8 +68,10 @@ describe("updateEventStatusAction", () => {
     fd.set("id", "1");
     fd.set("status", "bad");
     const res = await updateEventStatusAction(fd);
-    expect(res.error).toBeDefined();
+    expect(res).toBeUndefined();
     expect(mockDbUpdate).not.toHaveBeenCalled();
+    expect(mockRevalidate).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it("rejects unauthenticated users", async () => {
@@ -77,7 +80,10 @@ describe("updateEventStatusAction", () => {
     fd.set("id", "1");
     fd.set("status", "done");
     const res = await updateEventStatusAction(fd);
-    expect(res.error).toBe("Not signed in");
+    expect(res).toBeUndefined();
+    expect(mockDbUpdate).not.toHaveBeenCalled();
+    expect(mockRevalidate).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it("rejects non-admin users", async () => {
@@ -87,7 +93,10 @@ describe("updateEventStatusAction", () => {
     fd.set("id", "1");
     fd.set("status", "done");
     const res = await updateEventStatusAction(fd);
-    expect(res.error).toBe("Not authorized");
+    expect(res).toBeUndefined();
+    expect(mockDbUpdate).not.toHaveBeenCalled();
+    expect(mockRevalidate).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
   });
 
   it("updates status and revalidates for admins", async () => {

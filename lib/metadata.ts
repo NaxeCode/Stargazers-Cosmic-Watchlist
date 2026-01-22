@@ -11,7 +11,7 @@ export type MetadataResult = {
   studios?: string[];
   imdbId?: string | null;
   tmdbId?: number | null;
-  source: "tmdb" | "omdb";
+  source: "tmdb" | "omdb" | "anilist" | "igdb";
 };
 
 export type SimilarTitle = {
@@ -39,6 +39,18 @@ export function metadataToUpdate(meta: MetadataResult) {
 }
 
 export async function fetchMetadata(title: string, type: string): Promise<MetadataResult | null> {
+  if (type === "anime") {
+    const anilist = await fetchFromAnilist(title);
+    if (anilist) return anilist;
+    return null;
+  }
+
+  if (type === "game") {
+    const igdb = await fetchFromIgdb(title);
+    if (igdb) return igdb;
+    return null;
+  }
+
   const tmdbKey = process.env.TMDB_API_KEY;
   if (tmdbKey) {
     const tmdb = await fetchFromTmdb(title, type, tmdbKey);
@@ -198,6 +210,110 @@ async function fetchFromOmdb(title: string, type: string, apiKey: string): Promi
   }
 }
 
+async function fetchFromAnilist(title: string): Promise<MetadataResult | null> {
+  const query = `
+    query ($search: String) {
+      Page(page: 1, perPage: 1) {
+        media(search: $search, type: ANIME) {
+          title { romaji english }
+          startDate { year }
+          coverImage { extraLarge large }
+          description
+          genres
+          studios(isMain: true) { nodes { name } }
+          episodes
+          duration
+        }
+      }
+    }
+  `;
+  try {
+    const res = await fetch("https://graphql.anilist.co", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ query, variables: { search: title } }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const media = data?.data?.Page?.media?.[0];
+    if (!media) return null;
+
+    const description = typeof media.description === "string" ? stripHtml(media.description) : null;
+    const year = media?.startDate?.year ?? null;
+    const posterUrl = media?.coverImage?.extraLarge || media?.coverImage?.large || null;
+    const genres = Array.isArray(media.genres) ? media.genres.filter(Boolean) : [];
+    const studios = Array.isArray(media?.studios?.nodes)
+      ? media.studios.nodes.map((s: any) => s?.name).filter(Boolean)
+      : [];
+    const episodeCount = Number.isFinite(media?.episodes) ? Number(media.episodes) : null;
+    const duration = Number.isFinite(media?.duration) ? Number(media.duration) : null;
+    const runtimeMinutes =
+      duration && episodeCount ? duration * episodeCount : duration ?? null;
+
+    return {
+      source: "anilist",
+      tmdbId: null,
+      imdbId: null,
+      posterUrl,
+      releaseYear: year,
+      runtimeMinutes,
+      synopsis: description ? description.trim().slice(0, 2000) : null,
+      genres: genres.length ? genres : undefined,
+      studios: studios.length ? studios : undefined,
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[metadata] anilist fetch failed", error);
+    }
+    return null;
+  }
+}
+
+async function fetchFromIgdb(title: string): Promise<MetadataResult | null> {
+  const clientId = process.env.IGDB_CLIENT_ID;
+  const clientSecret = process.env.IGDB_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+
+  const token = await getIgdbToken(clientId, clientSecret);
+  if (!token) return null;
+
+  const body = `search "${title}"; fields name,summary,first_release_date,cover.url; limit 1; where cover != null;`;
+  try {
+    const res = await fetch("https://api.igdb.com/v4/games", {
+      method: "POST",
+      headers: {
+        "Client-ID": clientId,
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body,
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const first = data?.[0];
+    if (!first) return null;
+
+    const releaseYear = first?.first_release_date
+      ? new Date(first.first_release_date * 1000).getFullYear()
+      : null;
+
+    return {
+      source: "igdb",
+      tmdbId: null,
+      imdbId: null,
+      posterUrl: normalizeIgdbCover(first?.cover?.url),
+      releaseYear,
+      runtimeMinutes: null,
+      synopsis: typeof first?.summary === "string" ? first.summary.slice(0, 2000) : null,
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[metadata] igdb fetch failed", error);
+    }
+    return null;
+  }
+}
+
 function normalizeType(type: string) {
   if (type === "movie") return "movie";
   if (type === "game") return "movie"; // TMDB has limited game data; treat as movie search
@@ -219,6 +335,31 @@ async function safeJsonFetch(url: string): Promise<any | null> {
   } catch {
     return null;
   }
+}
+
+async function getIgdbToken(clientId: string, clientSecret: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`,
+      { method: "POST" },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeIgdbCover(url?: string | null) {
+  if (!url) return null;
+  let normalized = url.replace("//", "https://");
+  normalized = normalized.replace("t_thumb", "t_cover_big");
+  return normalized;
+}
+
+function stripHtml(input: string) {
+  return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function parseYear(input: string | undefined | null) {
