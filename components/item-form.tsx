@@ -36,6 +36,7 @@ export function ItemForm() {
   const [typeValue, setTypeValue] = useState<string>("anime");
   const [ratingValue, setRatingValue] = useState<string>("");
   const [lockedTitle, setLockedTitle] = useState<string | null>(null);
+  const [lockedPosterUrl, setLockedPosterUrl] = useState<string | null>(null);
   const [autofillPreview, setAutofillPreview] = useState<{
     releaseYear?: number;
     runtimeMinutes?: number;
@@ -92,6 +93,8 @@ export function ItemForm() {
       setTitleValue("");
       setSuggestions([]);
       setSuggestionsOpen(false);
+      setLockedTitle(null);
+      setLockedPosterUrl(null);
     } else if (state?.error) {
       toast.error(state.error);
     }
@@ -194,11 +197,15 @@ export function ItemForm() {
               {lockedTitle && (
                 <>
                   <input type="hidden" name="title" value={lockedTitle} />
+                  {lockedPosterUrl && (
+                    <input type="hidden" name="posterUrl" value={lockedPosterUrl} />
+                  )}
                   <button
                     type="button"
                     className="surface-muted inline-flex items-center gap-2 rounded-full border border-border/70 px-3 py-1 text-sm font-medium capitalize transition hover:border-destructive/70 hover:text-destructive"
                     onClick={() => {
                       setLockedTitle(null);
+                      setLockedPosterUrl(null);
                       setTitleValue("");
                       setSuggestionsOpen(false);
                       setSuggestions([]);
@@ -242,6 +249,7 @@ export function ItemForm() {
                         setSuggestionsOpen(false);
                         setSuggestions([]);
                         setLockedTitle(s.title);
+                        setLockedPosterUrl(s.posterUrl ?? null);
                       }}
                     >
                       <div className="surface-inset relative h-12 w-8 overflow-hidden rounded-md border border-border/60">

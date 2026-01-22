@@ -39,6 +39,7 @@ export function ItemFormRedesigned() {
   const [typeValue, setTypeValue] = useState<string>("anime");
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [lockedTitle, setLockedTitle] = useState<string | null>(null);
+  const [lockedPosterUrl, setLockedPosterUrl] = useState<string | null>(null);
   const [autofillPreview, setAutofillPreview] = useState<{
     releaseYear?: number;
     runtimeMinutes?: number;
@@ -101,6 +102,7 @@ export function ItemFormRedesigned() {
       setSuggestions([]);
       setSuggestionsOpen(false);
       setLockedTitle(null);
+      setLockedPosterUrl(null);
       setRatingValue(0);
     } else if (state?.error) {
       toast.error(state.error);
@@ -195,6 +197,9 @@ export function ItemFormRedesigned() {
               {lockedTitle ? (
                 <div className="flex h-14 w-full items-center gap-2 rounded-xl border-2 border-primary bg-primary/5 px-4 pl-12">
                   <input type="hidden" name="title" value={lockedTitle} />
+                  {lockedPosterUrl && (
+                    <input type="hidden" name="posterUrl" value={lockedPosterUrl} />
+                  )}
                   <span className="flex-1 font-medium">{lockedTitle}</span>
                   <Button
                     type="button"
@@ -202,6 +207,7 @@ export function ItemFormRedesigned() {
                     size="sm"
                     onClick={() => {
                       setLockedTitle(null);
+                      setLockedPosterUrl(null);
                       setTitleValue("");
                       setAutofillPreview(null);
                       setSuggestionsOpen(false);
@@ -255,6 +261,7 @@ export function ItemFormRedesigned() {
                             setTitleValue(s.title);
                             setTypeValue(s.type);
                             setLockedTitle(s.title);
+                            setLockedPosterUrl(s.posterUrl ?? null);
                             setSuggestionsOpen(false);
                             setSuggestions([]);
                           }}

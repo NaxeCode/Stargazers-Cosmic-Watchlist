@@ -17,6 +17,12 @@ const baseSchema = z.object({
   type: z.enum(ITEM_TYPES),
   status: z.enum(STATUSES),
   rating: ratingSchema,
+  posterUrl: z
+    .string()
+    .trim()
+    .max(2048, "Poster URL is too long")
+    .optional()
+    .transform((val) => (val === "" ? undefined : val)),
   tags: z
     .string()
     .trim()

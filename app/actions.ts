@@ -78,6 +78,7 @@ export async function createItemAction(
     type: formData.get("type"),
     status: formData.get("status"),
     rating: formData.get("rating"),
+    posterUrl: formData.get("posterUrl"),
     tags: formData.get("tags"),
     notes: formData.get("notes"),
   });
@@ -117,6 +118,7 @@ export async function createItemAction(
         rating: payload.rating ?? null,
         tags: payload.tags ?? null,
         notes: payload.notes ?? null,
+        posterUrl: payload.posterUrl ?? null,
         completedAt: resolveCompletedAt(undefined, payload.status),
         ...metadataPatch,
         userId,
